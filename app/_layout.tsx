@@ -2,8 +2,9 @@ import { View, Text, StyleSheet } from 'react-native'
 import React from 'react'
 import { Stack } from 'expo-router'
 import { colors } from '@/constants/theme'
+import { AuthProvider } from '@/context/authContext'
 
-const _layout = () => {
+const StackLayout = () => {
   return (
       <Stack screenOptions={{headerShown:false}}>
           
@@ -11,13 +12,15 @@ const _layout = () => {
   )
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: colors.neutral100,
-    }
-})
+export default function RootLayout() {
+  return (
+    <AuthProvider>
+        <StackLayout />
+    </AuthProvider>
+  )
+  
+}
 
-export default _layout
+const styles = StyleSheet.create({
+
+})

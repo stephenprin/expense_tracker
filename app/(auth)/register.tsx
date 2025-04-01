@@ -19,19 +19,34 @@ import {
 } from "react-native";
 
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { useAuth } from "@/context/authContext";
 
-const Login = () => {
+const Register = () => {
   const emailRef = useRef("");
   const passwordRef = useRef("");
   const nameRef = useRef("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { register: registerUser } = useAuth();
 
   const handleSubmit = async () => {
-    if (emailRef.current === "" || passwordRef.current === "" || nameRef.current === "") {
+    if (
+      emailRef.current === "" ||
+      passwordRef.current === "" ||
+      nameRef.current === ""
+    ) {
       Alert.alert("Login", "Please fill in all fields");
     }
-    console.log(emailRef.current, passwordRef.current);
+    setIsLoading(true);
+    const res = await registerUser(
+      emailRef.current,
+      passwordRef.current,
+      nameRef.current
+    );
+    setIsLoading(false);
+    if (!res.success) {
+      Alert.alert("Sign Up", res.msg);
+    }
   };
 
   return (
@@ -67,18 +82,13 @@ const Login = () => {
                   autoCorrect={false}
                   onChangeText={(value) => (nameRef.current = value)}
                   icon={
-                    <Icon.User
-                      size={20}
-                      weight="fill"
-                      color={colors.text}
-                    />
+                    <Icon.User size={20} weight="fill" color={colors.text} />
                   }
                 />
                 <Input
                   placeholder="Enter your Email"
                   keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoCorrect={false}
+                  autoCorrect={true}
                   onChangeText={(value) => (emailRef.current = value)}
                   icon={
                     <Icon.Envelope
@@ -96,7 +106,7 @@ const Login = () => {
                     <Icon.Lock size={20} weight="fill" color={colors.text} />
                   }
                 />
-                
+
                 <Button onPress={handleSubmit} loading={isLoading}>
                   <Typo size={16} color={colors.black} fontWeight={"600"}>
                     Sign Up
@@ -121,7 +131,7 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
 
 const styles = StyleSheet.create({
   container: {
