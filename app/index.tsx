@@ -6,11 +6,11 @@ import { useRouter } from "expo-router";
 const index = () => {
     const router = useRouter()
     
-    useEffect(() => { 
-        setTimeout(() => {
-            router.navigate("/(auth)/welcome")
-        }, 2000)
-    }, [])
+    // useEffect(() => { 
+    //     setTimeout(() => {
+    //         router.navigate("/(auth)/welcome")
+    //     }, 2000)
+    // }, [])
   return (
     <View style={styles.container}>
      <Image style={styles.logo} source={require('../assets/images/splashImage.png')}  resizeMode="contain"/>

@@ -19,18 +19,25 @@ import {
 } from "react-native";
 
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { useAuth } from "@/context/authContext";
 
 const Login = () => {
   const emailRef = useRef("");
   const passwordRef = useRef("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { login: loginUser } = useAuth();
 
   const handleSubmit = async () => {
     if (emailRef.current === "" || passwordRef.current === "") {
       Alert.alert("Login", "Please fill in all fields");
     }
-    console.log(emailRef.current, passwordRef.current);
+    setIsLoading(true);
+    const response = await loginUser(emailRef.current, passwordRef.current);
+    if (!response.success) {
+      Alert.alert("Login", response.msg);
+    }
+    setIsLoading(false);
   };
 
   return (
@@ -65,6 +72,7 @@ const Login = () => {
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
+                  autoFocus={true}
                   onChangeText={(value) => (emailRef.current = value)}
                   icon={
                     <Icon.Envelope
@@ -78,6 +86,7 @@ const Login = () => {
                   placeholder="Enter your Password"
                   secureTextEntry
                   onChangeText={(value) => (passwordRef.current = value)}
+                  autoFocus={true}
                   icon={
                     <Icon.Lock size={20} weight="fill" color={colors.text} />
                   }
