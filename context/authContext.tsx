@@ -1,11 +1,12 @@
 import { auth, firestore } from "@/config/firebase";
-import { AuthContextType, UserDataType, UserType } from "@/type";
+import { AuthContextType, UserType } from "@/types";
 import { doc, getDoc, setDoc } from "@firebase/firestore";
+import { useRouter } from "expo-router";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import React, { createContext } from "react";
+import React, { createContext, useEffect } from "react";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -13,17 +14,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [user, setUser] = React.useState<UserType | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user: UserType) => {
+      console.log(user);
+      if (user) {
+        setUser({
+          uid: user.uid,
+          email: user?.email,
+          name: user?.displayName,
+          image: user?.photoURL,
+        });
+        updateUserData(user.uid);
+        router.replace("/(tabs)");
+      } else {
+        setUser(null);
+        router.replace("/(auth)/welcome");
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   const login = async (email: string, password: string) => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       return { success: true };
     } catch (error: any) {
-      const msg = error.message;
-      return { success: false, msg };
+      console.log("Message", error.message);
+      console.log("Code", error.code);
+      if (error.code === "auth/invalid-credential") {
+        return { success: false, msg: "Wrong credentials" };
+      } else if (error.code === "auth/invalid-email") {
+        return { success: false, msg: "Invalid Email" };
+      }
     }
   };
   const register = async (email: string, password: string, name: string) => {
-    console.log("Email", email);
     try {
       if (!email || !password || !name) {
         throw new Error("All fields (email, password, name) are required");
@@ -48,7 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       return { success: true };
     } catch (error: any) {
-    
+      console.log(error);
       if (error.code === "auth/invalid-email") {
         return { success: false, msg: "Please enter a valid email address." };
       } else if (error.code === "auth/email-already-in-use") {
