@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import ScreenWrapper from "@/components/ScreenWrapper";
 import { verticalScale } from "@/utils/styling";
@@ -10,9 +10,14 @@ import { Image } from "expo-image";
 import { getProfileImage } from "@/services/imageServices";
 import { accountOptionType } from "@/type";
 import * as Icons from "phosphor-react-native";
+import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
+import { signOut } from "firebase/auth";
+import { auth } from "@/config/firebase";
+import { useRouter } from "expo-router";
 
 const Profile = () => {
   const { user } = useAuth();
+  const router = useRouter();
   const accountOption: accountOptionType[] = [
     {
       title: "Edit Profile",
@@ -40,13 +45,37 @@ const Profile = () => {
       bgColor: "#e11d48",
     },
   ];
+  const handleLogout = async () => {
+    await signOut(auth);
+  };
+  const showLogoutAlert = () => {
+    Alert.alert("Confirm", "Are you sure you want to logout?", [
+      {
+        text: "Cancel",
+        onPress: () => console.log("Cancel logout"),
+        style: "cancel",
+      },
+      {
+        text: "Logout",
+        onPress: () => handleLogout(),
+        style: "destructive",
+      },
+    ]);
+  };
+
+  const handlePress = (item: accountOptionType) => {
+    if (item.title == "Logout") {
+      showLogoutAlert();
+    }
+    if (item.routeName) router.push(item.routeName);
+  };
   return (
     <ScreenWrapper>
       <View style={styles.container}>
         <Header title="Profile" style={{ marginVertical: spacingY._10 }} />
         <View style={styles.userInfo}>
           {/* User image(AVATER) */}
-          <View>
+          <View style={styles.avatarContainer}>
             <Image
               source={getProfileImage(user?.image)}
               style={styles.avatar}
@@ -67,8 +96,17 @@ const Profile = () => {
         <View style={styles.accountOptions}>
           {accountOption.map((item, index) => {
             return (
-              <View style={styles.listItem} key={index}>
-                <TouchableOpacity style={styles.flexRow}>
+              <Animated.View
+                entering={FadeInDown.delay(index * 60)
+                  .springify()
+                  .damping(24)}
+                style={styles.listItem}
+                key={index}
+              >
+                <TouchableOpacity
+                  style={styles.flexRow}
+                  onPress={() => handlePress(item)}
+                >
                   <View
                     style={[
                       styles.listIcon,
@@ -87,7 +125,7 @@ const Profile = () => {
                     color={colors.neutral500}
                   />
                 </TouchableOpacity>
-              </View>
+              </Animated.View>
             );
           })}
         </View>
