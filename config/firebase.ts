@@ -9,12 +9,12 @@ import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfiguration = {
-  apiKey: "AIzaSyBREBCt6PyHR5c5jZ_KlztvKYgh2H-wtRQ",
-  authDomain: "expense-tracker-dbffd.firebaseapp.com",
-  projectId: "expense-tracker-dbffd",
-  storageBucket: "expense-tracker-dbffd.firebasestorage.app",
-  messagingSenderId: "834995526172",
-  appId: "1:834995526172:web:8efbea54450e28493fddd9"
+  apiKey: process.env.EXPO_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PROJECT_ID,
+  storageBucket: process.env.EXPO_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_APP_ID,
 };
 
 // Initialize Firebase
@@ -22,7 +22,7 @@ const app = initializeApp(firebaseConfiguration);
 
 //auth
 export const auth = initializeAuth(app, {
-    persistence: getReactNativePersistence(AsyncStorage),
+  persistence: getReactNativePersistence(AsyncStorage),
 });
 
 //db
