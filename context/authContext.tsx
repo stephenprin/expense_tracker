@@ -91,7 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const updateUserData = async (userId: string) => {
+   const updateUserData = async (userId: string) => {
     try {
       const docRef = doc(firestore, "users", userId);
       const docSnap = await getDoc(docRef);

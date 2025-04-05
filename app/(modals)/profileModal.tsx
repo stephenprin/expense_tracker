@@ -20,27 +20,58 @@ import Typo from "@/components/Typo";
 import Input from "@/components/Input";
 import { UserDataType } from "@/type";
 import Button from "@/components/Button";
+import { updateUser } from "@/services/userServices";
+import { useRouter } from "expo-router";
+import * as ImagePicker from "expo-image-picker";
 
-const profileModal = () => {
-  const { user } = useAuth();
+const ProfileModal = () => {
+  const { user, updateUserData } = useAuth();
   const [userData, setUserData] = useState<UserDataType>({
     name: "",
     image: null,
   });
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setUserData({
       name: user?.name || "",
       image: user?.image || null,
     });
-  });
+  }, [user]);
+
+  const onPickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images", "videos"],
+      // allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+
+    if (!result.canceled) {
+      setUserData({ ...userData, image: result.assets[0] });
+    }
+  };
 
   const onSubmit = async () => {
     let { name, image } = userData;
     if (!name.trim()) {
       Alert.alert("User", "Please fill all fields");
       return;
+    }
+    if (name.length < 3) {
+      Alert.alert("User", "Name should be at least 3 characters");
+      return;
+    }
+    setLoading(true);
+    const resp = await updateUser(user?.uid as string, userData);
+    setLoading(false);
+    if (resp.success) {
+      await updateUserData(user?.uid as string);
+      router.back();
+    } else {
+      Alert.alert("User", resp.msg);
     }
   };
   return (
@@ -60,7 +91,7 @@ const profileModal = () => {
               contentFit="cover"
               transition={100}
             />
-            <TouchableOpacity style={styles.editIcon}>
+            <TouchableOpacity style={styles.editIcon} onPress={onPickImage}>
               <Icons.Pencil
                 size={verticalScale(20)}
                 color={colors.neutral800}
@@ -80,7 +111,7 @@ const profileModal = () => {
         </ScrollView>
       </View>
       <View style={styles.footer}>
-        <Button onPress={onSubmit} style={{ flex: 1 }}>
+        <Button loading={loading} onPress={onSubmit} style={{ flex: 1 }}>
           <Typo color={colors.black} fontWeight={"700"}>
             Update
           </Typo>
@@ -90,7 +121,7 @@ const profileModal = () => {
   );
 };
 
-export default profileModal;
+export default ProfileModal;
 
 const styles = StyleSheet.create({
   avatarContainer: {
