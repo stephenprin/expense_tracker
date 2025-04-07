@@ -9,6 +9,9 @@ export const upLoadFileToCloudinary = async (
   folderName: string
 ): Promise<ResponseType> => {
   try {
+    if (!file) { 
+      return { success: false, data:null, msg: "No file provided" };
+    }
     if (typeof file == "string") {
       return { success: true, msg: file };
     }
@@ -20,7 +23,7 @@ export const upLoadFileToCloudinary = async (
         type: "image/jpeg",
         name: file?.uri.split("/").pop() || "image.jpg",
       } as any);
-      formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+      formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET as string);
       formData.append("folder", folderName);
 
       const response = await axios.post(CLOUDINARY_API_URL, formData, {
@@ -46,3 +49,11 @@ export const getProfileImage = (file: any) => {
 
   return require("../assets/images/defaultAvatar.png");
 };
+
+export const getFilePath = (file: any) => {
+  if (file && typeof file == "string") return file;
+  if (file && typeof file == "object") return file.uri;
+
+  return null
+};
+
