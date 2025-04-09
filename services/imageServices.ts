@@ -10,7 +10,7 @@ export const upLoadFileToCloudinary = async (
 ): Promise<ResponseType> => {
   try {
     if (!file) { 
-      return { success: false, data:null, msg: "No file provided" };
+      return { success: true, data:null };
     }
     if (typeof file == "string") {
       return { success: true, msg: file };
